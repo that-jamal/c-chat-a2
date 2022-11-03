@@ -1,38 +1,78 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
 import { getDatabase, ref, onChildAdded, set } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCiL7D1h3ZaoXdyoMXbgQ7b8RaUc6jdQ9g",
-    authDomain: "pog22-8b683.firebaseapp.com",
-    projectId: "pog22-8b683",
-    storageBucket: "pog22-8b683.appspot.com",
-    messagingSenderId: "793659510891",
-    appId: "1:793659510891:web:2fd69d58c30ea247b7e12e",
-    databaseURL: "https://pog22-8b683-default-rtdb.europe-west1.firebasedatabase.app/"
+    apiKey: "AIzaSyBZ-3myzZ6ZGSOzl2PPeQfLfuk2VVKL2LY",
+    authDomain: "class-chatting-f0676.firebaseapp.com",
+    databaseURL: "https://class-chatting-f0676-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "class-chatting-f0676",
+    storageBucket: "class-chatting-f0676.appspot.com",
+    messagingSenderId: "908020593712",
+    appId: "1:908020593712:web:bf54b3285f7116890ba9f5",
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-// initializes Realtime Database and get a reference service
+
+
+// Auth
+//--------------------------------
+
+
+const loginModal = new bootstrap.Modal('#Login-modal');
+loginModal.show();
+
+
+document.querySelector("#login-button").addEventListener('click', function () {
+    const email = document.querySelector("#email").value
+    const password = document.querySelector("#password").value
+    const auth = getAuth();
+    //sign in wth firebase
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            console.log(user);
+            // hide modal
+            loginModal.hide();
+
+
+            initDatabase();
+        })
+        .catch((error) => {
+            console.log(error)
+        });
+});
+
+
+//database
+//----------------------------------
 const db = getDatabase(app);
+// initializes Realtime Database and get a reference service
+function initDatabase() {
 
-// create reference, where in the database we want to take info from
-const chatRef = ref(db, '/chat');
+
+    // create reference, where in the database we want to take info from
+    const chatRef = ref(db, '/chat');
 
 
-// listens for database changes
-onChildAdded(chatRef, function (data) {
+    // listens for database changes
+    onChildAdded(chatRef, function (data) {
 
-    // create element and append to list element
-    const message = document.createElement("li")
-    message.innerText = new Date(data.key).toLocaleDateString("fi-FI") + ": " + data.val();
+        // create element and append to list element
+        const list = document.querySelector("ul")
+        const message = document.createElement("li")
+        message.innerText = new Date(data.key).toLocaleDateString("fi-FI") + ": " + data.val();
 
-    list.appendChild(message)
-})
+        list.appendChild(message)
+    });
+}
 
+//new message
 const input = document.querySelector("input");
-const list = document.querySelector("ul")
+
 
 input.addEventListener("keypress", function (event) {
     if (event.key == "Enter") {
